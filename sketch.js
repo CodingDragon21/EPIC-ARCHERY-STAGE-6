@@ -9,18 +9,11 @@ var palyer, playerBase, playerArcher;
 var computer, computerBase, computerArcher;
 var playerArrows = [];
 var computerArrows = [];
-
-var playerLife = 3
-var computerLife = 3
-
-var amo = 8
-//
-//Declare the varibales to add 3 life for player and computerplayer
+var playerArcherLife = 3;
+var computerArcherLife = 3;
 
 function preload() {
-  //Load Image of background
-  backgroundImg = loadImage("assets/background.gif")
-
+  backgroundImg = loadImage("./assets/background.gif");
 }
 
 function setup() {
@@ -77,36 +70,23 @@ function draw() {
 
   playerBase.display();
   player.display();
-  
+  player.life();
   playerArcher.display();
   handlePlayerArrowCollision();
 
   for (var i = 0; i < computerArrows.length; i++) {
     showArrows(i, computerArrows);
   }
-  //call Player.life and computerplayer.life
-
 
   computerBase.display();
   computer.display();
-  
+  computer.life();
   computerArcher.display();
   handleComputerArrowCollision();
-
-  player.life()
-  computer.life()
-
-  player.reduceLife()
-  computer.reduceLife()
-push()
-textSize(16)
-fill("orange")
-  text("Arrows Left:" + amo, 270,100)
-pop()
 }
 
 function keyPressed() {
-  if (keyCode === 32 && amo > 0) {
+  if (keyCode === 32) {
     var posX = playerArcher.body.position.x;
     var posY = playerArcher.body.position.y;
     var angle = playerArcher.body.angle;
@@ -120,29 +100,26 @@ function keyPressed() {
 }
 
 function keyReleased() {
-  if (keyCode === 32 && amo > 0) {
+  if (keyCode === 32) {
     if (playerArrows.length) {
       var angle = playerArcher.body.angle;
       playerArrows[playerArrows.length - 1].shoot(angle);
-      amo=amo - 1
     }
   }
 }
 
 function showArrows(index, arrows) {
   arrows[index].display();
-  
-if(arrows[index].body.position.x > width ||
-  arrows[index].body.position.y > height
-  ){
-
-  if(!arrows[index].isRemoved){
-    arrows[index].remove(index,arrows)
-  } else {
-    arrows[index].trajectory = []
+  if (
+    arrows[index].body.position.x > width ||
+    arrows[index].body.position.y > height
+  ) {
+    if (!arrows[index].isRemoved) {
+      arrows[index].remove(index, arrows);
+    } else {
+      arrows[index].trajectory = [];
+    }
   }
-}
- 
 }
 
 function handleComputerArcher() {
@@ -154,11 +131,17 @@ function handleComputerArcher() {
       var move = random(moves);
       var angleValue;
 
-      if (move === "UP") {
+      if (move === "UP" && computerArcher.body.angle < 1.67) {
         angleValue = 0.1;
-      } else {
-        angleValue = -0.1;
+      }else{
+          angleValue = -0.1;
       }
+      if(move === "DOWN" && computerArcher.body.angle > 1.47) {
+        angleValue = -0.1;
+      }else{
+          angleValue = 0.1;
+      }
+      
       angle += angleValue;
 
       var arrow = new ComputerArrow(pos.x, pos.y, 100, 10, angle);
@@ -198,17 +181,16 @@ function handlePlayerArrowCollision() {
       archerCollision.collided ||
       computerCollision.collided
     ) {
-      console.log("Player Arrow Collided")
-      computerLife-=1;
-      computer.reduceLife(computerLife)
-      if(computerLife <= 0 ){
-        computerArcher.collapse = true
-        Matter.Body.setStatic(computerArcher.body, false)
-        Matter.Body.setStatic(computer.body, false)
+      computerArcherLife -= 1;
+      computer.reduceLife(computerArcherLife);
+      if (computerArcherLife <= 0) {
+        computerArcher.collapse = true;
+        Matter.Body.setStatic(computerArcher.body, false);
+        Matter.Body.setStatic(computer.body, false);
         Matter.Body.setPosition(computer.body, {
-         x: width - 100,
-         y: computer.body.position.y
-        })
+          x: width - 100,
+          y: computer.body.position.y
+        });
       }
     }
   }
@@ -235,19 +217,17 @@ function handleComputerArrowCollision() {
       baseCollision.collided ||
       archerCollision.collided ||
       playerCollision.collided
-    )
-    {
-      console.log("Computer Arrow Collided")
-      playerLife-=1;
-      player.reduceLife(playerLife)
-      if(playerLife <= 0 ){
-       playerArcher.collapse = true
-        Matter.Body.setStatic(playerArcher.body, false)
-        Matter.Body.setStatic(player.body, false)
+    ) {
+      playerArcherLife -= 1;
+      player.reduceLife(playerArcherLife);
+      if (playerArcherLife <= 0) {
+        playerArcher.collapse = true;
+        Matter.Body.setStatic(playerArcher.body, false);
+        Matter.Body.setStatic(player.body, false);
         Matter.Body.setPosition(player.body, {
-         x: width - 100,
-         y: player.body.position.y
-        })
+          x: 100,
+          y: player.body.position.y
+        });
       }
     }
   }
